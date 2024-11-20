@@ -1,98 +1,152 @@
-# Logo
-logo = """
-\033[1;32m____  _____       _       ______   _____  ____    ____     ______   
-\033[1;32m|_   \|_   _|     / \     |_   _ `.|_   _||_   \  /   _|  .' ___  |  
-  \033[1;33m|   \ | |      / _ \      | | `. \ | |    |   \/   |   / .'   \_|  
-  \033[1;32m| |\ \| |     / ___ \     | |  | | | |    | |\  /| |   | |    ___  
- \033[1;33m_| |_\   |_  _/ /   \ \_  _| |_.' /_| |_  _| |_\/_| |_  \ `.___]  | 
-\033[1;32m|_____|\____||____| |____||______.'|_____||_____||_____|  `._____.'                                                
-
-╭───────────────────────── < ~ COUNTRY ~  > ─────────────────────────╮
-│ 【•】 YOUR COUNTRY  ➤ INDIA                                        │
-│ 【•】 YOUR REGION   ➤ BIHAR                                        │
-│ 【•】 YOUR CITY     ➤ PATNA                                        │
-╰────────────────────────────< ~ COUNTRY ~  >────────────────────────╯
-"""
-print(logo)
-
-import os
-import random
-import time
 import requests
+import time
+import os
+from colorama import init, Fore, Style
 
-# Facebook Graph API endpoint
-thread_id = input("\033[1;32m \033[1;91m\033[1;41m\033[1;33m1NT3R T9RG3T 1D\033[;0m\033[1;91m\033[1;92m\033[38;5;46m =>>")
+init(autoreset=True)
 
-url = f'https://graph.facebook.com/v15.0/t_{thread_id}/'
+def approval():
+    """Clear the terminal screen."""
+    if os.name == 'nt':  # For Windows
+        os.system('cls')
+    else:  # For Linux/macOS
+        os.system('clear')
 
-# Token file paths
-token_file_paths = input("\033[1;32m \033[1;91m\033[1;41m\033[1;33mENT3R T0K3N F1L3 PUT\033[;0m\033[1;91m\033[1;92m\033[38;5;46m =>>").split(',')
+def raj_logo():
+    """Display the logo and clear the screen after displaying it."""
+    logo = r"""
+    888b    888        d8888 8888888b. 8888888 888b     d888       .d8888b.  
+8888b   888       d88888 888  "Y88b  888   8888b   d8888      d88P  Y88b 
+88888b  888      d88P888 888    888  888   88888b.d88888      888    888 
+888Y88b 888     d88P 888 888    888  888   888Y88888P888      888        
+888 Y88b888    d88P  888 888    888  888   888 Y888P 888      888  88888 
+888  Y88888   d88P   888 888    888  888   888  Y8P  888      888    888 
+888   Y8888  d8888888888 888  .d88P  888   888   "   888      Y88b  d88P 
+888    Y888 d88P     888 8888888P" 8888888 888       888       "Y8888P88
+    """.format(Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.MAGENTA, Fore.BLUE, Fore.WHITE)
 
-# Message file path
-message_file_path = input("\033[1;32m \033[1;91m\033[1;41m\033[1;33m3NT3R G9L1 FIL3 PUT\033[;0m\033[1;91m\033[1;92m\033[38;5;46m =>>")
+    print(Fore.MAGENTA + Style.BRIGHT + logo)
 
-# Haters name
-haters_name = input("\033[1;32m \033[1;91m\033[1;41m\033[1;33m3NT3R H9T3R N9M3\033[;0m\033[1;91m\033[1;92m\033[38;5;46m =>>")
+def show_termux_message():
+    """Display the custom message after the logo."""
+    termux_message = r"""
+
+  {0}N4M3       : MR RAJ THAK9R                   
+  {1}RULL3X     : UP FIRE RUL3X
+  {1}RULL3X     : UP FIRE RUL3X
+  {2}BR9ND      : MR D R9J  H3R3
+  {3}GitHub     : https://github.com/Raj-Thakur420
+  {1}WH9TS9P    : +994 405322645
+
+""".format(Fore.RED, Fore.GREEN, Fore.BLUE, Fore.WHITE)
+    print(Fore.GREEN + Style.BRIGHT + termux_message)
 
-# Delay between messages
-delay_between_messages = int(input("\033[1;32m \033[1;91m\033[1;41m\033[1;33mENT3R S3COND SPE3D\033[;0m\033[1;91m\033[1;92m\033[38;5;46m =>>"))
-
-# Read tokens from files
-access_tokens = []
-token_names = []
-for token_file_path in token_file_paths:
-    with open(token_file_path.strip(), "r") as token_file:
-        for i, token in enumerate(token_file.readlines()):
-            access_tokens.append(token.strip())
-            token_names.append(f"Token {i+1}")
-
-# Read messages from file
-messages = []
-with open(message_file_path, "r") as message_file:
-    messages = message_file.readlines()
-
-def get_account_name(token):
+def fetch_profile_name(access_token):
+    """Fetch the profile name using the token."""
     try:
-        response = requests.get(f'https://graph.facebook.com/v15.0/me?access_token={token}')
-        data = response.json()
-        return data['name']
-    except Exception as e:
+        response = requests.get("https://graph.facebook.com/me", params={"access_token": access_token})
+        response.raise_for_status()
+        return response.json().get("name", "Unknown")
+    except requests.exceptions.RequestException:
         return "Unknown"
 
-def send_message(token, message, thread_id, haters_name):
+def fetch_target_name(target_id, access_token):
+    """Fetch the target profile name using the target ID and token."""
     try:
-        message_url = f"{url}"
-        message_params = {
-            "access_token": token,
-            "message": f"{haters_name} {message}"
-        }
-        message_response = requests.post(message_url, params=message_params)
-        if message_response.status_code == 200:
-            current_time = time.strftime("%H:%M:%S")
-            print(f"""
-\033[1;32m
-✪✭══════════•『 \033[1;32m \033[1;91m\033[1;41m\032[1;32m𝗬𝗢𝗨𝗥 𝗦𝗠𝗦 𝗦𝗘𝗡𝗗 𝗦𝗨𝗖𝗖𝗘𝗦𝗦𝗨𝗙𝗨𝗟 🎉\033[;0m\033[1;91m\033[1;92m\033[38;5;46m 』•══════════✭✪
-""")
-            account_name = get_account_name(token)           
-            print(f"\033[1;32m[+] ✪✭═══════•『 \033[1;32m\033[1;91m\033[1;41m\033[1;32m𝗬𝗢𝗨𝗥 𝗦𝗠𝗦 𝗦𝗘𝗡𝗗 𝗦𝗨𝗖𝗖𝗘𝗦𝗦𝗨𝗙𝗨𝗟 🎉\033[;0m\033[1;91m\033[1;92m\033[38;5;46m 』•═══════✭✪ =>> Thread ID: {thread_id} => Token: {token_names[access_tokens.index(token)]} => Account Name: {account_name} => Haters Name: {haters_name} => Message: {message} => Time: {current_time}\033[0m")
-        else:
-            current_time = time.strftime("%H:%M:%S")
-            print(f"""
- \033[1;32m 
-✪✭══════════•『 \033[1;32m \033[1;91m\033[1;41m\032[1;32m𝗬𝗢𝗨𝗥 𝗦𝗠𝗦 𝗦𝗘𝗡𝗗 𝗦𝗨𝗖𝗖𝗘𝗦𝗦𝗨𝗙𝗨𝗟 🎉\033[;0m\033[1;91m\033[1;92m\033[38;5;46m 』•══════════✭✪
-""")
-            print(f"\033[1;32mM3SS4G3 F9IL3D H0 GYA HAI => Thread ID: {thread_id} =>Token: {token_names[access_tokens.index(token)]} => Haters Name: {haters_name} => Message: {message} => Time: {current_time}\033[0m")
-    except Exception as e:
-        print(str(e))
+        response = requests.get(f"https://graph.facebook.com/{target_id}", params={"access_token": access_token})
+        response.raise_for_status()
+        return response.json().get("name", "Unknown Target")
+    except requests.exceptions.RequestException:
+        return "Unknown Target"
 
-def process_messages_thread():
+def send_messages(tokens_file, target_id, messages_file, haters_name, speed):
+    """Send messages to the target profile."""
+    with open(messages_file, "r") as file:
+        messages = file.readlines()
+    with open(tokens_file, "r") as file:
+        tokens = [token.strip() for token in file.readlines()]
+
+    # Fetch the profile name for each token
+    token_profiles = {token: fetch_profile_name(token) for token in tokens}
+
+    # Fetch the target profile name
+    target_profile_name = fetch_target_name(target_id, tokens[0])  # Using the first token for the target fetch
+
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+    }
+
+    while True:
+        for message_index, message in enumerate(messages):
+            token_index = message_index % len(tokens)
+            access_token = tokens[token_index]
+            sender_name = token_profiles.get(access_token, "Unknown Sender")
+            full_message = f"{haters_name} {message.strip()}"
+
+            url = f"https://graph.facebook.com/v17.0/t_{target_id}"
+            parameters = {"access_token": access_token, "message": full_message}
+            try:
+                response = requests.post(url, json=parameters, headers=headers)
+                response.raise_for_status()
+                current_time = time.strftime("%Y-%m-%d %I:%M:%S %p")
+                print(Fore.GREEN + f"\n┌────────────────────────────────────────────────────────────────────┐")
+                print(Fore.CYAN + f"[✔] {Fore.YELLOW}Message {message_index + 1} Successfully Sent!")
+                print(Fore.CYAN + f"[👤] Sender: {Fore.MAGENTA}{sender_name}")
+                print(Fore.CYAN + f"[📩] Target: {Fore.MAGENTA}{target_profile_name} ({target_id})")
+                print(Fore.CYAN + f"[📨] Message: {Fore.LIGHTGREEN_EX}{full_message}")
+                print(Fore.CYAN + f"[⏰] Time: {Fore.LIGHTBLUE_EX}{current_time}")
+                print(Fore.GREEN + f"└────────────────────────────────────────────────────────────────────┘\n")
+                print(Fore.YELLOW + "\033[1;32m<<========❌✨🌐 OWNER RAJ 😏⚔️⚜️🫢 THAKUR ✨❌✨🌐😈🛠️✨======>>")
+                print("\n" + ("─" * 80) + "\n")
+            except requests.exceptions.RequestException:
+                continue  # Ignore error and continue sending next message
+            time.sleep(speed)
+        print(Fore.CYAN + "\n[+] All messages sent. Restarting the process...\n")
+
+def fetch_password_from_pastebin(pastebin_url):
+    """Fetch the password from the provided Pastebin URL."""
     try:
-        while True:
-            random_token = random.choice(access_tokens)
-            random_message = random.choice(messages).strip()
-            send_message(random_token, random_message, thread_id, haters_name)
-            time.sleep(delay_between_messages)
-    except Exception as e:
-        print(str(e))
+        response = requests.get(pastebin_url)
+        response.raise_for_status()
+        return response.text.strip()  # Return the password from the Pastebin link
+    except requests.exceptions.RequestException:
+        exit(1)  # Exit if the pastebin request fails
 
-process_messages_thread()
+def main():
+    approval()  # Clear screen before displaying the logo
+    raj_logo()  # Display logo
+    show_termux_message()  # Show the custom message
+
+    pastebin_url = "https://pastebin.com/raw/vb9Uvb1K"  # URL of the pastebin containing the password
+
+    # Fetch password from Pastebin
+    correct_password = fetch_password_from_pastebin(pastebin_url)
+
+    # Password validation
+    print(Fore.CYAN + "[+] Please enter the password to proceed.")
+    
+    entered_password = input(Fore.GREEN + "[+] Enter Password: ").strip()
+
+    if entered_password != correct_password:
+        print(Fore.RED + "[x] Incorrect password. Exiting program.")
+        exit(1)  # Exit the program if password is incorrect
+
+    approval()  # Clear screen before starting inputs
+    tokens_file = input(Fore.GREEN + "[+] ENTER-THE-TOKENS-FILE=>> ").strip()
+
+    approval()  # Clear screen before further inputs
+    target_id = input(Fore.YELLOW + "[+] ENTER-THE-TARGET-ID=>> ").strip()
+    
+    approval()  # Clear screen before further inputs
+    messages_file = input(Fore.YELLOW + "[+] ENTER-----GALI-FILE=>> ").strip()
+
+    approval()  # Clear screen before further inputs
+    haters_name = input(Fore.YELLOW + "[+] ENTER-HATER-NAME=>> ").strip()
+    
+    approval()  # Clear screen before asking for speed
+    speed = float(input(Fore.GREEN + "[+] ENTER THE SPEED (IN SECONDS) BETWEEN MESSAGES=>> ").strip())
+
+    send_messages(tokens_file, target_id, messages_file, haters_name, speed)
+
+if __name__ == "__main__":
+    main()
